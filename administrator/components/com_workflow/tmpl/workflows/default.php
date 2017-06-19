@@ -1,9 +1,7 @@
 <?php
 
-// No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 
-// Load tooltip behavior
 JHtml::_('behavior.tooltip');
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_workflow'); ?>" method="post" name="adminForm" id="adminForm">

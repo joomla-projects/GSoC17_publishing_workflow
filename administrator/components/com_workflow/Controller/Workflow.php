@@ -13,7 +13,11 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Mvc\Factory\MvcFactoryInterface;
 use Joomla\CMS\Controller\Form;
 
-
+/**
+ * The first example class, this is in the same
+ * package as declared at the start of file but
+ * this example has a defined subpackage
+ */
 class Workflow extends Form
 {
 
@@ -29,7 +33,7 @@ class Workflow extends Form
 	 * Constructor.
 	 *
 	 * @param   array                $config   An optional associative array of configuration settings.
-	 * @param   \MvcFactoryInterface  $factory  The factory.
+	 * @param   \MvcFactoryInterface $factory  The factory.
 	 * @param   CMSApplication       $app      The JApplication for the dispatcher
 	 * @param   \JInput              $input    Input
 	 *

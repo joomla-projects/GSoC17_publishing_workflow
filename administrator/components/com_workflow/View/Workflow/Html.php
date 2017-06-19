@@ -19,6 +19,7 @@ use Joomla\CMS\View\HtmlView;
  */
 class Html extends HtmlView
 {
+
 	protected $form;
 	protected $item;
 
@@ -61,7 +62,7 @@ class Html extends HtmlView
 	 */
 	protected function addToolbar()
 	{
-		\JToolbarHelper::title(empty($this->item->id) ? \JText::_('COM_WORKFLOW_WORKFLOWS_ADD') : \JText::_('COM_WORKFLOW_WORKFLOWS_EDIT'), 'address contact');
+		\JToolbarHelper::title(empty($this->item->id) ? \JText::_('COM_WORKFLOW_WORKFLOWS_ADD') : \JText::_('COM_WORKFLOW_WORKFLOWS_EDIT'), 'address');
 		\JFactory::getApplication()->input->set('hidemainmenu', true);
 		\JToolbarHelper::saveGroup(
 			[

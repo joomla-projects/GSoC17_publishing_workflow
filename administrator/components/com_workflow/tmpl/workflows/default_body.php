@@ -1,7 +1,6 @@
 
 <?php
 
-// No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 ?>
 <?php foreach ($this->workflows as $i => $item):
