@@ -19,7 +19,8 @@ use Joomla\CMS\Model\Admin;
  * The first example class, this is in the same
  * package as declared at the start of file but
  * this example has a defined subpackage
- * @since       4.0
+ *
+ * @since  4.0
  */
 class Workflow extends Admin
 {

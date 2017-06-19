@@ -17,7 +17,8 @@ use Joomla\CMS\Controller\Form;
  * The first example class, this is in the same
  * package as declared at the start of file but
  * this example has a defined subpackage
- * @since       4.0
+ *
+ * @since  4.0
  */
 class Workflow extends Form
 {
@@ -33,10 +34,10 @@ class Workflow extends Form
 	/**
 	 * Constructor.
 	 *
-	 * @param   array                $config   An optional associative array of configuration settings.
-	 * @param   \MvcFactoryInterface $factory  The factory.
-	 * @param   CMSApplication       $app      The JApplication for the dispatcher
-	 * @param   \JInput              $input    Input
+	 * @param   array                 $config   An optional associative array of configuration settings.
+	 * @param   \MvcFactoryInterface  $factory  The factory.
+	 * @param   CMSApplication        $app      The JApplication for the dispatcher
+	 * @param   \JInput               $input    Input
 	 *
 	 * @since  1.6
 	 * @see    \JControllerLegacy
