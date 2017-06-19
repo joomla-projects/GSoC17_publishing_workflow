@@ -21,12 +21,13 @@ class Html extends HtmlView
 {
 
 	protected $form;
+
 	protected $item;
 
 	/**
 	 * Display item view
 	 *
-	 * @param   string $tpl The name of the template file to parse; automatically searches through the template paths.
+	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
 	 *
 	 * @return  void
 	 *

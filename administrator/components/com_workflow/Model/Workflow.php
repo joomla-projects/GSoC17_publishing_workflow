@@ -19,6 +19,7 @@ use Joomla\CMS\Model\Admin;
  * The first example class, this is in the same
  * package as declared at the start of file but
  * this example has a defined subpackage
+ * @since       4.0
  */
 class Workflow extends Admin
 {
@@ -26,7 +27,7 @@ class Workflow extends Admin
 	/**
 	 * Method to save the form data.
 	 *
-	 * @param   array $data The form data.
+	 * @param   array  $data  The form data.
 	 *
 	 * @return   boolean  True on success.
 	 *
@@ -53,8 +54,8 @@ class Workflow extends Admin
 	/**
 	 * Abstract method for getting the form from the model.
 	 *
-	 * @param   array   $data     Data for the form.
-	 * @param   boolean $loadData True if the form is to load its own data (default case), false if not.
+	 * @param   array    $data      Data for the form.
+	 * @param   boolean  $loadData  True if the form is to load its own data (default case), false if not.
 	 *
 	 * @return \JForm|boolean  A JForm object on success, false on failure
 	 *
