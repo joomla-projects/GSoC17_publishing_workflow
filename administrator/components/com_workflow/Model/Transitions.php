@@ -102,8 +102,9 @@ class Transitions extends ListModel
 	 */
 	public function getListQuery()
 	{
-		$db    = $this->getDbo();
-		$query = $db->getQuery(true);
+		$db = $this->getDbo();
+
+		$query = parent::getListQuery();
 
 		$select = $db->quoteName(array(
 			'transition.id',
@@ -166,7 +167,7 @@ class Transitions extends ListModel
 		$orderCol	= $this->state->get('list.ordering', 'id');
 		$orderDirn 	= strtolower($this->state->get('list.direction', 'asc'));
 
-		$query->order($db->qn($db->escape($orderCol)) . ' ' . $db->escape($orderDirn == 'desc' ? 'DESC' : 'ASC'));
+		$query->order($db->quoteName($orderCol) . ' ' . $db->escape($orderDirn == 'desc' ? 'DESC' : 'ASC'));
 
 		return $query;
 	}
