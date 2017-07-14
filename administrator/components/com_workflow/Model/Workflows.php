@@ -111,14 +111,16 @@ class  Workflows extends ListModel
 
 		$query = parent::getListQuery();
 
-		$select = $db->quoteName(array(
+		$select = $db->quoteName(
+			array(
 			'w.id',
 			'w.title',
 			'w.created',
 			'w.published',
 			'w.default',
 			'u.name'
-		));
+		)
+		);
 
 		$query
 			->select($select)
