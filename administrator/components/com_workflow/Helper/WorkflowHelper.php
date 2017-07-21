@@ -63,12 +63,12 @@ class WorkflowHelper extends ContentHelper
 		$db = Factory::getDbo();
 		$query = $db->getQuery(true);
 
-		$select= $db->qn(['id', 'title'], ['value', $fieldName]);
+		$select= $db->quoteName(['id', 'title'], ['value', $fieldName]);
 
 		$query
 			->select($select)
-			->from($db->qn('#__workflow_states'))
-			->where($db->qn('workflow_id') . ' = ' . (int) $workflowID);
+			->from($db->quoteName('#__workflow_states'))
+			->where($db->quoteName('workflow_id') . ' = ' . (int) $workflowID);
 
 		return (string) $query;
 	}
