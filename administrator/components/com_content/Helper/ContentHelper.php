@@ -42,6 +42,11 @@ class ContentHelper extends \JHelperContent
 			$vName == 'categories'
 		);
 		\JHtmlSidebar::addEntry(
+			\JText::_('COM_CONTENT_SUBMENU_WORKFLOW'),
+			'index.php?option=com_workflow&extension=com_content',
+			$vName == 'workflows'
+		);
+		\JHtmlSidebar::addEntry(
 			\JText::_('COM_CONTENT_SUBMENU_FEATURED'),
 			'index.php?option=com_content&view=featured',
 			$vName == 'featured'
@@ -269,5 +274,29 @@ class ContentHelper extends \JHelperContent
 		);
 
 		return $contexts;
+	}
+
+	/**
+	 * Returns array of transitions
+	 *
+	 * @param   string  $state  State of item
+	 *
+	 * @return  array
+	 *
+	 * @since   4.0
+	 */
+	public static function getTransitions($state)
+	{
+		$db = \JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select($db->qn('id') . ' AS value, ' . $db->qn('title') . ' AS text')
+			->from($db->qn('#__workflow_transitions'))
+			->where($db->qn('from_state_id') . ' = ' . (int) $state);
+		$db->setQuery($query);
+		$results = $db->loadAssocList();
+
+		return $results;
 	}
 }

@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `#__assets` (
 --
 
 INSERT INTO `#__assets` (`id`, `parent_id`, `lft`, `rgt`, `level`, `name`, `title`, `rules`) VALUES
-(1, 0, 0, 103, 0, 'root.1', 'Root Asset', '{"core.login.site":{"6":1,"2":1},"core.login.admin":{"6":1},"core.login.offline":{"6":1},"core.admin":{"8":1},"core.manage":{"7":1},"core.create":{"6":1,"3":1},"core.delete":{"6":1},"core.edit":{"6":1,"4":1},"core.edit.state":{"6":1,"5":1},"core.edit.own":{"6":1,"3":1}}'),
+(1, 0, 0, 105, 0, 'root.1', 'Root Asset', '{"core.login.site":{"6":1,"2":1},"core.login.admin":{"6":1},"core.login.offline":{"6":1},"core.admin":{"8":1},"core.manage":{"7":1},"core.create":{"6":1,"3":1},"core.delete":{"6":1},"core.edit":{"6":1,"4":1},"core.edit.state":{"6":1,"5":1},"core.edit.own":{"6":1,"3":1}}'),
 (2, 1, 1, 2, 1, 'com_admin', 'com_admin', '{}'),
 (3, 1, 3, 6, 1, 'com_banners', 'com_banners', '{"core.admin":{"7":1},"core.manage":{"6":1}}'),
 (4, 1, 7, 8, 1, 'com_cache', 'com_cache', '{"core.admin":{"7":1},"core.manage":{"7":1}}'),
@@ -516,6 +516,7 @@ INSERT INTO `#__extensions` (`extension_id`, `package_id`, `name`, `type`, `elem
 (32, 0, 'com_postinstall', 'component', 'com_postinstall', '', 1, 1, 1, 1, '', '', 0, '0000-00-00 00:00:00', 0, 0, 'Joomla\\Component\\Postinstall'),
 (33, 0, 'com_fields', 'component', 'com_fields', '', 1, 1, 1, 0, '', '', 0, '0000-00-00 00:00:00', 0, 0, ''),
 (34, 0, 'com_associations', 'component', 'com_associations', '', 1, 1, 1, 0, '', '', 0, '0000-00-00 00:00:00', 0, 0, ''),
+(35, 0, 'com_workflow', 'component', 'com_workflow', '', 1, 1, 0, 0, '', '{}', 0, '0000-00-00 00:00:00', 0, 0, 'Joomla\\Component\\Workflow'),
 (103, 0, 'Joomla! Platform', 'library', 'joomla', '', 0, 1, 1, 1, '', '', 0, '0000-00-00 00:00:00', 0, 0, ''),
 (104, 0, 'IDNA Convert', 'library', 'idna_convert', '', 0, 1, 1, 1, '', '', 0, '0000-00-00 00:00:00', 0, 0, ''),
 (105, 0, 'FOF', 'library', 'fof', '', 0, 1, 1, 1, '', '', 0, '0000-00-00 00:00:00', 0, 0, ''),
@@ -645,7 +646,6 @@ INSERT INTO `#__extensions` (`extension_id`, `package_id`, `name`, `type`, `elem
 (601, 802, 'English (en-GB)', 'language', 'en-GB', '', 1, 1, 1, 1, '', '', 0, '0000-00-00 00:00:00', 0, 0, ''),
 (700, 0, 'files_joomla', 'file', 'joomla', '', 0, 1, 1, 1, '', '', 0, '0000-00-00 00:00:00', 0, 0, ''),
 (802, 0, 'English (en-GB) Language Pack', 'package', 'pkg_en-GB', '', 0, 1, 1, 1, '', '', 0, '0000-00-00 00:00:00', 0, 0, '');
-
 -- --------------------------------------------------------
 
 --
@@ -2106,3 +2106,77 @@ INSERT INTO `#__viewlevels` (`id`, `title`, `ordering`, `rules`) VALUES
 (3, 'Special', 3, '[6,3,8]'),
 (5, 'Guest', 1, '[9]'),
 (6, 'Super Users', 4, '[8]');
+
+--
+-- Dumping data for table `#__workflows`
+--
+
+CREATE TABLE IF NOT EXISTS `#__workflows` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `asset_id` int(10) DEFAULT 0, # TODO replace with real value
+  `published` tinyint(1) NOT NULL DEFAULT 0,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `extension` varchar(255) NOT NULL,
+  `default` tinyint(1) NOT NULL,
+  `created` datetime NOT NULL DEFAULT NOW(),
+  `created_by` int(10) NOT NULL,
+  `modified` datetime NOT NULL DEFAULT NOW(),
+  `modified_by` int(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `asset_id` (`asset_id`),
+  KEY `title` (`title`(191)),
+  KEY `extension` (`extension`(191)),
+  KEY `default` (`default`),
+  KEY `created` (`created`),
+  KEY `created_by` (`created_by`),
+  KEY `modified` (`modified`),
+  KEY `modified_by` (`modified_by`)
+) ENGINE=InnoDB COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `#__workflow_states`
+--
+
+CREATE TABLE IF NOT EXISTS `#__workflow_states` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `workflow_id` int(10) NOT NULL,
+  `published` tinyint(1) NOT NULL DEFAULT 0,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `condition` enum('1','2','3') NOT NULL,
+  `access` int(10) NOT NULL,
+  `default` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `workflow_id` (`workflow_id`),
+  KEY `title` (`title`(191)),
+  KEY `access` (`access`),
+  KEY `default` (`default`)
+) ENGINE=InnoDB DEFAULT COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `#__workflow_transitions`
+--
+
+CREATE TABLE IF NOT EXISTS `#__workflow_transitions` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `published` tinyint(1) NOT NULL DEFAULT 0,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `asset_id` int(10) DEFAULT 0,
+  `from_state_id` int(10) NOT NULL,
+  `to_state_id` int(10) NOT NULL,
+  `workflow_id` int(10) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `title` (`title`(191)),
+  KEY `asset_id` (`asset_id`),
+  KEY `from_state_id` (`from_state_id`),
+  KEY `to_state_id` (`to_state_id`),
+  KEY `workflow_id` (`workflow_id`)
+) ENGINE=InnoDB DEFAULT COLLATE=utf8mb4_unicode_ci;
+
+-- ALTER TABLE `#__content` CHANGE `state` `state` INT(10) NOT NULL DEFAULT '0';
+
+-- ALTER TABLE `#__content` ADD `workflow_id` INT(10) NOT NULL AFTER `asset_id`, ADD INDEX (`workflow_id`);
+
+-- ALTER TABLE `#__categories` ADD `workflow_id` INT(10) NOT NULL AFTER `asset_id`, ADD INDEX (`workflow_id`);
