@@ -141,28 +141,28 @@ class Workflow extends Table
 	{
 		$assetId = null;
 
-        // Build the query to get the asset id for the parent category.
-        $query = $this->_db->getQuery(true)
-            ->select($this->_db->quoteName('id'))
-            ->from($this->_db->quoteName('#__assets'))
-            ->where($this->_db->quoteName('name') . ' = ' . $this->_db->quote($this->extension));
+		// Build the query to get the asset id for the parent category.
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->quoteName('id'))
+			->from($this->_db->quoteName('#__assets'))
+			->where($this->_db->quoteName('name') . ' = ' . $this->_db->quote($this->extension));
 
-        // Get the asset id from the database.
-        $this->_db->setQuery($query);
+		// Get the asset id from the database.
+		$this->_db->setQuery($query);
 
-        if ($result = $this->_db->loadResult())
-        {
-            $assetId = (int) $result;
-        }
+		if ($result = $this->_db->loadResult())
+		{
+			$assetId = (int) $result;
+		}
 
-        // Return the asset id.
-        if ($assetId)
-        {
-            return $assetId;
-        }
-        else
-        {
-            return parent::_getAssetParentId($table, $id);
-        }
+		// Return the asset id.
+		if ($assetId)
+		{
+			return $assetId;
+		}
+		else
+		{
+			return parent::_getAssetParentId($table, $id);
+		}
 	}
 }
