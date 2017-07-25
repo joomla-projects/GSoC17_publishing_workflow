@@ -389,7 +389,7 @@ class Articles extends ListModel
 						->where($db->quoteName('t.published') . ' = 1')
 						->where($db->quoteName('s.published') . ' = 1');
 
-				$transitions = $db->setQuery($query)->loadObject();
+				$transitions = $db->setQuery($query)->loadObjectList();
 
 				foreach ($transitions as $key => $transition)
 				{
