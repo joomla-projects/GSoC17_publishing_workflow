@@ -338,6 +338,13 @@ class Articles extends ListModel
 		return $query;
 	}
 
+	/**
+	 * Method to get all transitions at once for all articles
+	 *
+	 * @return  array
+	 *
+	 * @since   4.0
+	 */
 	public function getTransitions()
 	{
 		// Get a storage key.
