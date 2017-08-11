@@ -197,7 +197,7 @@ class Articles extends ListModel
 					'a.catid, a.created, a.created_by, a.created_by_alias, ' .
 					// Published/archived article in archive category is treats as archive article
 					// If category is not published then force 0
-					'CASE WHEN c.published = 2 AND a.state > 0 THEN 2 WHEN c.published != 1 THEN 0 ELSE a.state END as state,' .
+					'CASE WHEN c.published = 2 AND s.condition > 2 THEN 3 WHEN c.published != 1 THEN 1 ELSE s.condition END as state,' .
 					// Use created if modified is 0
 					'CASE WHEN a.modified = ' . $db->quote($db->getNullDate()) . ' THEN a.created ELSE a.modified END as modified, ' .
 					'a.modified_by, uam.name as modified_by_name,' .
@@ -230,8 +230,7 @@ class Articles extends ListModel
 			$query->join('LEFT', '#__content_frontpage AS fp ON fp.content_id = a.id');
 		}
 
-		// Join over states
-		$query->innerJoin($db->quoteName('#__workflow_states', 'ws') . ' ON(' . $db->quoteName('a.state') . ' = ' . $db->quoteName('ws.id') . ')');
+		$query->join('LEFT', '#__workflow_states AS s ON s.id = a.state');
 
 		// Join over the categories.
 		$query->select('c.title AS category_title, c.path AS category_route, c.access AS category_access, c.alias AS category_alias')
@@ -267,11 +266,11 @@ class Articles extends ListModel
 
 		// Filter by published state
 		$condition = $this->getState('filter.condition');
-
+    
 		if (is_numeric($condition))
 		{
 			// Category has to be published
-			$query->where('c.published = 1 AND ws.condition = ' . (int) $condition);
+			$query->where('c.published = 1 AND s.condition = ' . (int) $condition);
 		}
 		elseif (is_array($condition))
 		{
@@ -279,7 +278,7 @@ class Articles extends ListModel
 			$condition = implode(',', $condition);
 
 			// Category has to be published
-			$query->where('c.published = 1 AND ws.condition IN (' . $condition . ')');
+			$query->where('c.published = 1 AND s.condition IN (' . $published . ')');
 		}
 
 		// Filter by featured state
