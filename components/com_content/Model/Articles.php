@@ -118,7 +118,7 @@ class Articles extends ListModel
 		if ((!$user->authorise('core.edit.state', 'com_content')) && (!$user->authorise('core.edit', 'com_content')))
 		{
 			// Filter on published for those who do not have edit or edit.state rights.
-			$this->setState('filter.published', 1);
+			$this->setState('filter.condition', 1);
 		}
 
 		$this->setState('filter.language', Multilanguage::isEnabled());
@@ -230,6 +230,9 @@ class Articles extends ListModel
 			$query->join('LEFT', '#__content_frontpage AS fp ON fp.content_id = a.id');
 		}
 
+		// Join over states
+		$query->innerJoin($db->quoteName('#__workflow_states', 'ws') . ' ON(' . $db->quoteName('a.state') . ' = ' . $db->quoteName('ws.id') . ')');
+
 		// Join over the categories.
 		$query->select('c.title AS category_title, c.path AS category_route, c.access AS category_access, c.alias AS category_alias')
 			->select('c.published, c.published AS parents_published')
@@ -249,7 +252,7 @@ class Articles extends ListModel
 		if (PluginHelper::isEnabled('content', 'vote'))
 		{
 			// Join on voting table
-			$query->select('COALESCE(NULLIF(ROUND(v.rating_sum  / v.rating_count, 0), 0), 0) AS rating, 
+			$query->select('COALESCE(NULLIF(ROUND(v.rating_sum  / v.rating_count, 0), 0), 0) AS rating,
 							COALESCE(NULLIF(v.rating_count, 0), 0) as rating_count')
 				->join('LEFT', '#__content_rating AS v ON a.id = v.content_id');
 		}
@@ -263,26 +266,20 @@ class Articles extends ListModel
 		}
 
 		// Filter by published state
-		$published = $this->getState('filter.published');
+		$condition = $this->getState('filter.condition');
 
-		if (is_numeric($published) && $published == 2)
-		{
-			// If category is archived then article has to be published or archived.
-			// If categogy is published then article has to be archived.
-			$query->where('(c.published = 2 AND a.state > 0) OR (c.published = 1 AND a.state = 2)');
-		}
-		elseif (is_numeric($published))
+		if (is_numeric($condition))
 		{
 			// Category has to be published
-			$query->where('c.published = 1 AND a.state = ' . (int) $published);
+			$query->where('c.published = 1 AND ws.condition = ' . (int) $published);
 		}
-		elseif (is_array($published))
+		elseif (is_array($condition))
 		{
-			$published = ArrayHelper::toInteger($published);
-			$published = implode(',', $published);
+			$published = ArrayHelper::toInteger($condition);
+			$published = implode(',', $condition);
 
 			// Category has to be published
-			$query->where('c.published = 1 AND a.state IN (' . $published . ')');
+			$query->where('c.published = 1 AND ws.condition IN (' . $published . ')');
 		}
 
 		// Filter by featured state
