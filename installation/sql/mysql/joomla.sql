@@ -2169,7 +2169,7 @@ CREATE TABLE IF NOT EXISTS `#__workflow_states` (
   `published` tinyint(1) NOT NULL DEFAULT 0,
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
-  `condition` enum('1','2','3') NOT NULL,
+  `condition` enum('0','1','2') NOT NULL,
   `default` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `workflow_id` (`workflow_id`),
