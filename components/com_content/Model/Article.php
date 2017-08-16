@@ -142,6 +142,11 @@ class Article extends Item
 				// Filter by published state.
 				$published = $this->getState('filter.published');
 
+				if (is_numeric($published))
+				{
+					$query->where('s.condition = ' . $db->quote((int)$published));
+				}
+
 				$db->setQuery($query);
 
 				$data = $db->loadObject();
