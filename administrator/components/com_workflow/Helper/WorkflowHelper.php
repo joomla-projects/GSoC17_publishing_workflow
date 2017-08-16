@@ -121,7 +121,7 @@ class WorkflowHelper extends ContentHelper
 				return "COM_WORKFLOW_UNPUBLISHED";
 			case 1:
 				return "COM_WORKFLOW_PUBLISHED";
-			case 2:
+			case -2:
 				return "COM_WORKFLOW_TRASHED";
 		}
 	}

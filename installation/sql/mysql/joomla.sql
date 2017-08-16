@@ -2169,7 +2169,7 @@ CREATE TABLE IF NOT EXISTS `#__workflow_states` (
   `published` tinyint(1) NOT NULL DEFAULT 0,
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
-  `condition` enum('0','1','2') NOT NULL,
+  `condition` enum('0','1','-2') NOT NULL,
   `default` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `workflow_id` (`workflow_id`),
@@ -2185,7 +2185,7 @@ CREATE TABLE IF NOT EXISTS `#__workflow_states` (
 INSERT INTO `#__workflow_states` (`id`, `asset_id`, `workflow_id`, `published`, `title`, `description`, `condition`, `default`) VALUES
 (1, 56, 1, 1, 'Unpublished', '', '0', 0),
 (2, 57, 1, 1, 'Published', '', '1', 1),
-(3, 58, 1, 1, 'Trashed', '', '2', 0),
+(3, 58, 1, 1, 'Trashed', '', '-2', 0),
 (4, 59, 1, 1, 'Archived', '', '1', 0);
 
 --

@@ -39,7 +39,7 @@
 		>
 			<option value="1">COM_WORKFLOW_PUBLISHED</option>
 			<option value="0">COM_WORKFLOW_UNPUBLISHED</option>
-			<option value="2">COM_WORKFLOW_TRASHED</option>
+			<option value="-2">COM_WORKFLOW_TRASHED</option>
 		</field>
 
 	</fieldset>
