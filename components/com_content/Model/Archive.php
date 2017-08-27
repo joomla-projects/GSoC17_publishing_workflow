@@ -12,6 +12,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\Component\Content\Site\Model\Articles;
+use Joomla\Utilities\ArrayHelper;
 
 /**
  * Content Component Archive Model
@@ -72,6 +73,13 @@ class Archive extends Articles
 
 		$this->setState('list.ordering', $secondary . ', a.created DESC');
 		$this->setState('list.direction', '');
+
+		$states = $app->input->get('states', array(), 'array');
+
+		$states = ArrayHelper::toInteger($states);
+		$states = array_filter($states);
+
+		$this->setState('filter.states', $states);
 	}
 
 	/**
@@ -87,8 +95,9 @@ class Archive extends Articles
 		$app              = Factory::getApplication('site');
 		$catids           = $app->input->getVar('catid', array());
 		$catids           = array_values(array_diff($catids, array('')));
-		$state            = $app->input->getVar('state', array());
+		$state            = $app->input->getVar('state', $this->getState('filter.states', array()));
 		$state            = array_values(array_diff($state, array('')));
+
 		$articleOrderDate = $params->get('order_date');
 
 		$this->setState('filter.condition', false);
