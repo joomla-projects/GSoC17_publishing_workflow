@@ -143,7 +143,8 @@ class WorkflowHelper extends ContentHelper
 		$select = $db->quoteName(
 			array(
 				'tran.id',
-				'tran.to_state_id'
+				'tran.to_state_id',
+				'tran.from_state_id'
 			)
 		);
 
@@ -170,23 +171,36 @@ class WorkflowHelper extends ContentHelper
 					if (!$updated)
 					{
 						$query
-							->update($componentTable)
-							->set(
-								array(
-									$db->qn('state') . '=' . $db->quote($v->to_state_id)
-								)
-							)
-							->where($db->qn('id') . '=' . $pk);
+							->select($db->qn("state"))
+							->from($componentTable)
+							->where($db->qn("id") . '=' . $pk);
 						$db->setQuery($query);
+						$item = $db->loadObject();
 
-						return $db->execute();
+						if ($item->state === $v->from_state_id)
+						{
+							$query->clear();
+							$query
+								->update($componentTable)
+								->set(
+									array(
+										$db->qn('state') . '=' . $db->quote($v->to_state_id)
+									)
+								)
+								->where($db->qn('id') . '=' . $pk);
+							$db->setQuery($query);
+
+							return $db->execute();
+						}
+
+						return false;
 					}
 
 					return $updated;
 				}
 				catch (\Exception $e)
 				{
-					return \JText::_('COM_WORKFLOW_ERROR_UPDATE_STATE');
+					return false;
 				}
 			}
 		}
