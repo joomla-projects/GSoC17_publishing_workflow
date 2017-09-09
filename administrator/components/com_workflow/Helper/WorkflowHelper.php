@@ -154,8 +154,14 @@ class WorkflowHelper extends ContentHelper
 			->where($db->qn('tran.id') . ' IN (' . implode(',', $transitions) . ')')
 			->andWhere($db->qn('tran.published') . '=1');
 
-		$db->setQuery($query);
-		$result = $db->loadObjectList();
+		$result = $db->setQuery($query)->loadObjectList();
+
+		$query
+			->select($db->quoteName(array("a.state", "a.id")))
+			->from($db->qn($componentTable, 'a'))
+			->where($db->qn("a.id") . ' IN (' . implode(",", $pks) . ')');
+
+		$items = $db->setQuery($query)->loadAssocList('id', 'state');
 
 		foreach ($result as $k => $v)
 		{
@@ -170,14 +176,7 @@ class WorkflowHelper extends ContentHelper
 
 					if (!$updated)
 					{
-						$query
-							->select($db->qn("state"))
-							->from($componentTable)
-							->where($db->qn("id") . '=' . $pk);
-						$db->setQuery($query);
-						$item = $db->loadObject();
-
-						if ($item->state === $v->from_state_id)
+						if ($items[$pk] === $v->from_state_id)
 						{
 							$query->clear();
 							$query
