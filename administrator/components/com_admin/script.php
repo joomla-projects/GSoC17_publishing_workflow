@@ -87,6 +87,7 @@ class JoomlaInstallerScript
 		$this->updateManifestCaches();
 		$this->updateDatabase();
 		$this->updateAssets($installer);
+		$this->installWorkflow();
 		$this->clearStatsCache();
 		$this->convertTablesToUtf8mb4(true);
 		$this->cleanJoomlaCache();
@@ -544,5 +545,71 @@ class JoomlaInstallerScript
 		// Clean admin cache
 		$model->setState('client_id', 1);
 		$model->clean();
+	}
+
+	private function installWorkflow()
+	{
+		if (!JComponentHelper::isEnabled('com_workflow'))
+		{
+			return;
+		}
+
+		$workflowModel = new \Joomla\Component\Workflow\Administrator\Model\Workflow;
+		$user   = JFactory::getUser();
+
+		$defaultWorkflow = array(
+			'id'			=> 0,
+			'published'		=> 1,
+			'title'			=> 'Joomla! Default',
+			'description'	=> '',
+			'extension'		=> 'com_content',
+			'default'		=> 1,
+			'created_by'	=> $user->id,
+			'modified_by'	=> 0
+		);
+
+		try
+		{
+			if (!$workflowModel->save($defaultWorkflow))
+			{
+				throw new Exception($workflowModel->getError());
+			}
+		}
+		catch (Exception $e)
+		{
+			// Render the error message from the Exception object
+			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+		}
+
+		// Get ID from workflow we just added
+		$defaultWorkflowId = $workflowModel->getItem()->id;
+
+		$workflowStateModel = new \Joomla\Component\Workflow\Administrator\Model\State;
+
+		$workflowState = array(
+			'id'			=> 0,
+			'workflow_id'	=> $defaultWorkflowId,
+			'published'		=> 1,
+			'title'			=> 'Unpublished',
+			'description'	=> '',
+			'condition'		=> '0',
+			'default'		=> 0
+		);
+
+		try
+		{
+			if (!$workflowStateModel->save($workflowState))
+			{
+				throw new Exception($workflowStateModel->getError());
+			}
+		}
+		catch (Exception $e)
+		{
+			// Render the error message from the Exception object
+			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+		}
+
+		// Get ID from workflow we just added
+		$UnpublishedId = $workflowStateModel->getItem()->id;
 	}
 }
