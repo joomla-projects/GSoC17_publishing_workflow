@@ -597,24 +597,18 @@ class JoomlaInstallerScript
 			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
 		}
 
-		// Get ID from workflow we just added
-		$defaultWorkflowId = $workflowModel->getItem()->id;
-
 		$workflowStateModel = new \Joomla\Component\Workflow\Administrator\Model\State;
 
 		$defaultWorkflowStates = array(
 			array (
-				'id'		=> 2,
 				'title'		=> 'Unpublished',
 				'condition'	=> '0'
 			),
 			array (
-				'id'		=> 3,
 				'title'		=> 'Trashed',
 				'condition'	=> '-2'
 			),
 			array (
-				'id'		=> 4,
 				'title'		=> 'Archived',
 				'condition'	=> '1'
 			)
@@ -622,8 +616,8 @@ class JoomlaInstallerScript
 
 		foreach ($defaultWorkflowStates as $defaultWorkflowState) {
 			$workflowState = array(
-				'id'			=> $defaultWorkflowState['id'],
-				'workflow_id'	=> $defaultWorkflowId,
+				'id'			=> 0,
+				'workflow_id'	=> 1,
 				'published'		=> '1',
 				'title'			=> $defaultWorkflowState['title'],
 				'description'	=> '',
@@ -648,8 +642,6 @@ class JoomlaInstallerScript
 
 		$workflowTransitionModel = new \Joomla\Component\Workflow\Administrator\Model\Transition;
 
-		$transition_id = 1;
-
 		for ($to_state_id = 1; $to_state_id < 5; $to_state_id++)
 		{
 			$transitionTitle = '';
@@ -673,11 +665,10 @@ class JoomlaInstallerScript
 			{
 
 				if ($to_state_id == $from_state_id) continue;
-				if (empty($transitionTitle)) continue;
 
 				$workflowTransition = array(
-					'id'			=> $transition_id,
-					'workflow_id'	=> $defaultWorkflowId,
+					'id'			=> 0,
+					'workflow_id'	=> 1,
 					'published'		=> '1',
 					'title'			=> $transitionTitle,
 					'description'	=> '',
@@ -692,7 +683,6 @@ class JoomlaInstallerScript
 						throw new Exception($workflowTransitionModel->getError());
 					}
 
-					$transition_id++;
 				}
 				catch (Exception $e)
 				{
