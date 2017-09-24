@@ -554,16 +554,32 @@ class JoomlaInstallerScript
 			return;
 		}
 
+		// Check if any workflow is installed previously
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query->select("*")
+			->from($db->qn("#__workflows"))
+			->where($db->qn("id") . '= 1');
+		$db->setQuery($query);
+		$existingWorkflow = $db->loadObject();
+
+		if (!empty($existingWorkflow)) {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_WORKFLOW_INSTALL_DEFAULT_WORKFLOW_EXISTS'), 'error');
+
+			return false;
+		}
+
 		$workflowModel = new \Joomla\Component\Workflow\Administrator\Model\Workflow;
 		$user   = JFactory::getUser();
 
 		$defaultWorkflow = array(
 			'id'			=> 0,
-			'published'		=> 1,
+			'published'		=> '1',
 			'title'			=> 'Joomla! Default',
 			'description'	=> '',
 			'extension'		=> 'com_content',
-			'default'		=> 1,
+			'default'		=> '1',
 			'created_by'	=> $user->id,
 			'modified_by'	=> 0
 		);
@@ -586,30 +602,105 @@ class JoomlaInstallerScript
 
 		$workflowStateModel = new \Joomla\Component\Workflow\Administrator\Model\State;
 
-		$workflowState = array(
-			'id'			=> 0,
-			'workflow_id'	=> $defaultWorkflowId,
-			'published'		=> 1,
-			'title'			=> 'Unpublished',
-			'description'	=> '',
-			'condition'		=> '0',
-			'default'		=> 0
+		$defaultWorkflowStates = array(
+			array (
+				'id'		=> 2,
+				'title'		=> 'Unpublished',
+				'condition'	=> '0'
+			),
+			array (
+				'id'		=> 3,
+				'title'		=> 'Trashed',
+				'condition'	=> '-2'
+			),
+			array (
+				'id'		=> 4,
+				'title'		=> 'Archived',
+				'condition'	=> '1'
+			)
 		);
 
-		try
-		{
-			if (!$workflowStateModel->save($workflowState))
+		foreach ($defaultWorkflowStates as $defaultWorkflowState) {
+			$workflowState = array(
+				'id'			=> $defaultWorkflowState['id'],
+				'workflow_id'	=> $defaultWorkflowId,
+				'published'		=> '1',
+				'title'			=> $defaultWorkflowState['title'],
+				'description'	=> '',
+				'condition'		=> $defaultWorkflowState['condition'],
+				'default'		=> '0'
+			);
+
+			try
 			{
-				throw new Exception($workflowStateModel->getError());
+				if (!$workflowStateModel->save($workflowState))
+				{
+					throw new Exception($workflowStateModel->getError());
+				}
 			}
-		}
-		catch (Exception $e)
-		{
-			// Render the error message from the Exception object
-			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+			catch (Exception $e)
+			{
+				// Render the error message from the Exception object
+				JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+			}
+
 		}
 
-		// Get ID from workflow we just added
-		$UnpublishedId = $workflowStateModel->getItem()->id;
+		$workflowTransitionModel = new \Joomla\Component\Workflow\Administrator\Model\Transition;
+
+		$transition_id = 1;
+
+		for ($to_state_id = 1; $to_state_id < 5; $to_state_id++)
+		{
+			$transitionTitle = '';
+
+			switch ($to_state_id) {
+				case 1:
+					$transitionTitle = 'Unpublish';
+					break;
+				case 2:
+					$transitionTitle = 'Publish';
+					break;
+				case 3:
+					$transitionTitle = 'Trash';
+					break;
+				case 4:
+					$transitionTitle = 'Archive';
+					break;
+			}
+
+			for ($from_state_id = 1; $from_state_id < 5; $from_state_id++)
+			{
+
+				if ($to_state_id == $from_state_id) continue;
+				if (empty($transitionTitle)) continue;
+
+				$workflowTransition = array(
+					'id'			=> $transition_id,
+					'workflow_id'	=> $defaultWorkflowId,
+					'published'		=> '1',
+					'title'			=> $transitionTitle,
+					'description'	=> '',
+					'from_state_id'		=> (string) $from_state_id,
+					'to_state_id'		=> (string) $to_state_id
+				);
+
+				try
+				{
+					if (!$workflowTransitionModel->save($workflowTransition))
+					{
+						throw new Exception($workflowTransitionModel->getError());
+					}
+
+					$transition_id++;
+				}
+				catch (Exception $e)
+				{
+					// Render the error message from the Exception object
+					JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+				}
+
+			}
+		}
 	}
 }

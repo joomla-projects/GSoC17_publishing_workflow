@@ -101,10 +101,12 @@ CREATE TABLE IF NOT EXISTS `#__workflow_transitions` (
 -- (11, 71, 1, 'Archive', '', 2, 4, 1),
 -- (12, 72, 1, 'Archive', '', 3, 4, 1);
 
-INSERT INTO `#__extensions` (`extension_id`, `name`, `type`, `element`, `folder`, `client_id`, `enabled`, `access`, `protected`, `manifest_cache`, `params`, `checked_out`, `checked_out_time`, `ordering`, `state`) VALUES
+-- Adds com_workflow entry into the #__extensions table
+
+INSERT INTO `#__extensions` (`extension_id`, `package_id`, `name`, `type`, `element`, `folder`, `client_id`, `enabled`, `access`, `protected`, `manifest_cache`, `params`, `checked_out`, `checked_out_time`, `ordering`, `state`, `namespace`) VALUES
 (35, 0, 'com_workflow', 'component', 'com_workflow', '', 1, 1, 0, 0, '', '{}', 0, '0000-00-00 00:00:00', 0, 0, 'Joomla\\Component\\Workflow');
 
-UPDATE `#__categories` SET `params` = '{"category_layout":"","image":"","workflow_id":"1"}' WHERE `extension` = 'com_content';
+-- UPDATE `#__categories` SET `params` = '{"category_layout":"","image":"","workflow_id":"1"}' WHERE `extension` = 'com_content';
 
 -- INSERT INTO `#__assets` (`id`, `parent_id`, `lft`, `rgt`, `level`, `name`, `title`, `rules`) VALUES
 -- (56, 8, 20, 53, 2, 'com_content.workflow.1', 'Joomla! Default', '{}'),
@@ -126,6 +128,8 @@ UPDATE `#__categories` SET `params` = '{"category_layout":"","image":"","workflo
 -- (72, 56, 51, 52, 3, 'com_content.transition.12', 'Archive', '{}');
 
 UPDATE `#__content` SET `state` = 3 WHERE `state` = -2;
-UPDATE `#__content` SET `state` = 1 WHERE `state` = 0;
-UPDATE `#__content` SET `state` = 2 WHERE `state` = 1;
 UPDATE `#__content` SET `state` = 4 WHERE `state` = 2;
+UPDATE `#__content` SET `state` = 2 WHERE `state` = 1;
+UPDATE `#__content` SET `state` = 1 WHERE `state` = 0;
+
+
