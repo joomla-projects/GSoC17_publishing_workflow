@@ -576,7 +576,7 @@ class JoomlaInstallerScript
 		$defaultWorkflow = array(
 			'id'			=> 0,
 			'published'		=> '1',
-			'title'			=> 'Joomla! Default',
+			'title'			=> JText::_('COM_WORKFLOW_DEFAULT_WORKFLOW_TITLE'),
 			'description'	=> '',
 			'extension'		=> 'com_content',
 			'default'		=> '1',
@@ -601,15 +601,15 @@ class JoomlaInstallerScript
 
 		$defaultWorkflowStates = array(
 			array (
-				'title'		=> 'Unpublished',
+				'title'		=> JText::_('COM_WORKFLOW_UNPUBLISHED'),
 				'condition'	=> '0'
 			),
 			array (
-				'title'		=> 'Trashed',
+				'title'		=> JText::_('COM_WORKFLOW_TRASHED'),
 				'condition'	=> '-2'
 			),
 			array (
-				'title'		=> 'Archived',
+				'title'		=> JText::_('COM_WORKFLOW_ARCHIVED'),
 				'condition'	=> '1'
 			)
 		);
@@ -648,16 +648,16 @@ class JoomlaInstallerScript
 
 			switch ($to_state_id) {
 				case 1:
-					$transitionTitle = 'Unpublish';
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_UNPUBLISH');
 					break;
 				case 2:
-					$transitionTitle = 'Publish';
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_PUBLISH');
 					break;
 				case 3:
-					$transitionTitle = 'Trash';
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_TRASH');
 					break;
 				case 4:
-					$transitionTitle = 'Archive';
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_ARCHIVE');
 					break;
 			}
 
