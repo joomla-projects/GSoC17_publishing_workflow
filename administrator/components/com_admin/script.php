@@ -570,7 +570,7 @@ class JoomlaInstallerScript
 			return false;
 		}
 
-		$workflowModel = new \Joomla\Component\Workflow\Administrator\Model\Workflow;
+		$workflowModel = new \Joomla\Component\Workflow\Administrator\Model\WorkflowModel;
 		$user   = JFactory::getUser();
 
 		$defaultWorkflow = array(
