@@ -597,7 +597,7 @@ class JoomlaInstallerScript
 			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
 		}
 
-		$workflowStateModel = new \Joomla\Component\Workflow\Administrator\Model\State;
+		$workflowStateModel = new \Joomla\Component\Workflow\Administrator\Model\StateModel;
 
 		$defaultWorkflowStates = array(
 			array (
@@ -640,7 +640,7 @@ class JoomlaInstallerScript
 
 		}
 
-		$workflowTransitionModel = new \Joomla\Component\Workflow\Administrator\Model\Transition;
+		$workflowTransitionModel = new \Joomla\Component\Workflow\Administrator\Model\TransitionModel;
 
 		for ($to_state_id = 1; $to_state_id < 5; $to_state_id++)
 		{
@@ -691,6 +691,35 @@ class JoomlaInstallerScript
 				}
 
 			}
+		}
+
+		$articlesModel = new \Joomla\Component\Content\Administrator\Model\ArticlesModel;
+
+		$items = $articlesModel->getItems();
+
+		$workflowHelper = new \Joomla\Component\Workflow\Administrator\Helper\WorkflowHelper;
+
+		foreach ($items as &$item)
+		{
+			$workflowState = 0;
+
+			switch ($item->state)
+			{
+				case 0 :
+					$workflowState = 1;
+					break;
+				case 1 :
+					$workflowState = 2;
+					break;
+				case -2 :
+					$workflowState = 3;
+					break;
+				case 2 :
+					$workflowState = 4;
+					break;
+			}
+
+			$workflowHelper::addAssociation($item->id, $workflowState, 'com_content');
 		}
 	}
 }
