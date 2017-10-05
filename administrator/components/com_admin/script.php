@@ -554,6 +554,9 @@ class JoomlaInstallerScript
 			return;
 		}
 
+		// Load languages
+		JFactory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
+
 		// Check if any workflow is installed previously
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
