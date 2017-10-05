@@ -693,17 +693,23 @@ class JoomlaInstallerScript
 			}
 		}
 
-		$articlesModel = new \Joomla\Component\Content\Administrator\Model\ArticlesModel;
+		// Adding values to workflow_associations table
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
 
-		$items = $articlesModel->getItems();
+		$query
+			->select('a.id AS id, a.state AS state')
+			->from($db->quoteName('#__content', 'a'));
+
+		$articles = $db->setQuery($query)->loadObjectList();
 
 		$workflowHelper = new \Joomla\Component\Workflow\Administrator\Helper\WorkflowHelper;
 
-		foreach ($items as &$item)
+		foreach ($articles as &$article)
 		{
 			$workflowState = 0;
 
-			switch ($item->state)
+			switch ($article->state)
 			{
 				case 0 :
 					$workflowState = 1;
@@ -719,7 +725,7 @@ class JoomlaInstallerScript
 					break;
 			}
 
-			$workflowHelper::addAssociation($item->id, $workflowState, 'com_content');
+			$workflowHelper::addAssociation($article->id, $workflowState, 'com_content');
 		}
 	}
 }
