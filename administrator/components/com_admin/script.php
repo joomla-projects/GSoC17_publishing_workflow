@@ -9,7 +9,9 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\Database\UTF8MB4SupportInterface;
+use Joomla\Component\Workflow\Administrator as Workflow;
 
 /**
  * Script file of Joomla CMS
@@ -547,6 +549,11 @@ class JoomlaInstallerScript
 		$model->clean();
 	}
 
+	/**
+	 * Method to install com_workflow component
+	 *
+	 * @return void
+	 */
 	private function installWorkflow()
 	{
 		if (!JComponentHelper::isEnabled('com_workflow'))
@@ -555,26 +562,16 @@ class JoomlaInstallerScript
 		}
 
 		// Load languages
-		JFactory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
+		Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
 
-		// Check if any workflow is installed previously
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true);
-
-		$query->select("*")
-			->from($db->qn("#__workflows"))
-			->where($db->qn("id") . '= 1');
-		$db->setQuery($query);
-		$existingWorkflow = $db->loadObject();
-
-		if (!empty($existingWorkflow)) {
-			JFactory::getApplication()->enqueueMessage(JText::_('COM_WORKFLOW_INSTALL_DEFAULT_WORKFLOW_EXISTS'), 'error');
-
-			return false;
+		// Only execute in migration
+		if (version_compare(JVERSION, '4.0.0', '>='))
+		{
+			return;
 		}
 
-		$workflowModel = new \Joomla\Component\Workflow\Administrator\Model\WorkflowModel;
-		$user   = JFactory::getUser();
+		$workflowModel = new Workflow\Model\WorkflowModel;
+		$user   = Factory::getUser();
 
 		$defaultWorkflow = array(
 			'id'			=> 0,
@@ -597,10 +594,12 @@ class JoomlaInstallerScript
 		catch (Exception $e)
 		{
 			// Render the error message from the Exception object
-			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+			Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+			return;
 		}
 
-		$workflowStateModel = new \Joomla\Component\Workflow\Administrator\Model\StateModel;
+		$workflowStateModel = new Workflow\Model\StateModel;
 
 		$defaultWorkflowStates = array(
 			array (
@@ -638,12 +637,14 @@ class JoomlaInstallerScript
 			catch (Exception $e)
 			{
 				// Render the error message from the Exception object
-				JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+				Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+				return;
 			}
 
 		}
 
-		$workflowTransitionModel = new \Joomla\Component\Workflow\Administrator\Model\TransitionModel;
+		$workflowTransitionModel = new Workflow\Model\TransitionModel;
 
 		for ($to_state_id = 1; $to_state_id < 5; $to_state_id++)
 		{
@@ -690,14 +691,16 @@ class JoomlaInstallerScript
 				catch (Exception $e)
 				{
 					// Render the error message from the Exception object
-					JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+					Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+					return;
 				}
 
 			}
 		}
 
 		// Adding values to workflow_associations table
-		$db    = JFactory::getDbo();
+		$db    = Factory::getDbo();
 		$query = $db->getQuery(true);
 
 		$query
@@ -706,7 +709,7 @@ class JoomlaInstallerScript
 
 		$articles = $db->setQuery($query)->loadObjectList();
 
-		$workflowHelper = new \Joomla\Component\Workflow\Administrator\Helper\WorkflowHelper;
+		$workflowHelper = new Workflow\Helper\WorkflowHelper;
 
 		foreach ($articles as &$article)
 		{
