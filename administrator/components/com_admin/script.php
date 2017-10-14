@@ -652,10 +652,10 @@ class JoomlaInstallerScript
 
 			switch ($to_state_id) {
 				case 1:
-					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_UNPUBLISH');
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_PUBLISH');
 					break;
 				case 2:
-					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_PUBLISH');
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_UNPUBLISH');
 					break;
 				case 3:
 					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_TRASH');
