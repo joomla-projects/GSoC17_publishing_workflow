@@ -311,4 +311,40 @@ class WorkflowHelper extends ContentHelper
 
 		return $db->setQuery($query)->loadObject();
 	}
+
+	public static function getStatesByWorkflowId($workflowID)
+	{
+		if (empty($workflowID))
+		{
+			return false;
+		}
+
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('*')
+			->from($db->quoteName('#__workflow_states', 'ws'))
+			->where($db->qn('ws.workflow_id') . '=' . $db->quote($workflowID));
+
+		return $db->setQuery($query)->loadObjectList();
+	}
+
+	public static function getTransitionsByWorkflowId($workflowID)
+	{
+		if (empty($workflowID))
+		{
+			return false;
+		}
+
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('*')
+			->from($db->quoteName('#__workflow_transitions', 'wt'))
+			->where($db->qn('wt.workflow_id') . '=' . $db->quote($workflowID));
+
+		return $db->setQuery($query)->loadObjectList();
+	}
 }
