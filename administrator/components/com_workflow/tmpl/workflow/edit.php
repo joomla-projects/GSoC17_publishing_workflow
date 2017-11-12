@@ -109,36 +109,38 @@ use Joomla\Component\Workflow\Administrator\Helper\WorkflowHelper;
 JHtml::_('script', 'com_workflow/cytoscape.min.js', array('version' => 'auto', 'relative' => true));
 
 $workflowID = $this->item->id;
-$workflowHelper = new WorkflowHelper;
 
-$states = $workflowHelper::getStatesByWorkflowId($workflowID);
-$modifiedStates = array();
+if ($workflowID > 0) {
 
-foreach ($states as $state)
-{
-    $state->id = 'state.' . $state->id;
-    array_push($modifiedStates, (object) array('data' => clone $state));
+	$workflowHelper = new WorkflowHelper;
+
+	$states = $workflowHelper::getStatesByWorkflowId($workflowID);
+	$modifiedStates = array();
+
+	foreach ($states as $state) {
+		$state->id = 'state.' . $state->id;
+		array_push($modifiedStates, (object)array('data' => clone $state));
+	}
+
+	$states = $modifiedStates;
+
+	$transitions = $workflowHelper::getTransitionsByWorkflowId($workflowID);
+	$modifiedTransitions = array();
+
+	foreach ($transitions as $transition) {
+		$transition->id = 'transition' . $transition->id;
+		$transition->source = 'state.' . $transition->from_state_id;
+		$transition->target = 'state.' . $transition->to_state_id;
+		array_push($modifiedTransitions, (object)array('data' => clone $transition));
+	}
+
+	$transitions = $modifiedTransitions;
+
+	$statesArray = json_encode($states);
+	$transitionsArray = json_encode($transitions);
+
+	echo JText::_('COM_WORKFLOW_DIAGRAM');
 }
-
-$states = $modifiedStates;
-
-$transitions = $workflowHelper::getTransitionsByWorkflowId($workflowID);
-$modifiedTransitions = array();
-
-foreach ($transitions as $transition)
-{
-	$transition->id = 'transition' . $transition->id;
-	$transition->source = 'state.' . $transition->from_state_id;
-	$transition->target = 'state.' . $transition->to_state_id;
-	array_push($modifiedTransitions, (object) array('data' => clone $transition));
-}
-
-$transitions = $modifiedTransitions;
-
-$statesArray = json_encode($states);
-$transitionsArray = json_encode($transitions);
-
-echo JText::_('COM_WORKFLOW_DIAGRAM');
 
 ?>
 
