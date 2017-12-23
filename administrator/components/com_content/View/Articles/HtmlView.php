@@ -75,7 +75,7 @@ class HtmlView extends BaseHtmlView
 	 * Array used for displaying the levels filter
 	 *
 	 * @return  stdClass[]
-	 * @since  __DEPLOY_VERSION__
+	 * @since  4.0.0
 	 */
 	protected $f_levels;
 
@@ -113,6 +113,13 @@ class HtmlView extends BaseHtmlView
 		{
 			$this->addToolbar();
 			$this->sidebar = \JHtmlSidebar::render();
+
+			// We do not need to filter by language when multilingual is disabled
+			if (!\JLanguageMultilang::isEnabled())
+			{
+				unset($this->activeFilters['language']);
+				$this->filterForm->removeField('language', 'filter');
+			}
 		}
 		else
 		{
@@ -167,7 +174,7 @@ class HtmlView extends BaseHtmlView
 		// Add a batch button
 		if ($user->authorise('core.create', 'com_content')
 			&& $user->authorise('core.edit', 'com_content')
-			&& $user->authorise('core.edit.state', 'com_content'))
+			&& $user->authorise('core.execute.transition', 'com_content'))
 		{
 			$title = \JText::_('JTOOLBAR_BATCH');
 
