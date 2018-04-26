@@ -88,3 +88,131 @@ $tmpl    = $isModal || $input->get('tmpl', '', 'cmd') === 'component' ? '&tmpl=c
 	<input type="hidden" name="task" value="workflow.edit" />
 	<?php echo JHtml::_('form.token'); ?>
 </form>
+
+
+
+<?php
+/**
+ * @package     Joomla.Administrator
+ * @subpackage  com_workflow
+ *
+ * @copyright   Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.
+ * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ */
+
+defined('_JEXEC') or die;
+
+// Initialize related data.
+use Joomla\Component\Workflow\Administrator\Helper\WorkflowHelper;
+
+JHtml::_('script', 'com_workflow/cytoscape.min.js', array('version' => 'auto', 'relative' => true));
+
+$workflowID = $this->item->id;
+
+if ($workflowID > 0) {
+
+	$workflowHelper = new WorkflowHelper;
+
+	$states = $workflowHelper::getStatesByWorkflowId($workflowID);
+	$modifiedStates = array();
+
+	foreach ($states as $state) {
+		$state->id = 'state.' . $state->id;
+		array_push($modifiedStates, (object)array('data' => clone $state));
+	}
+
+	$states = $modifiedStates;
+
+	$transitions = $workflowHelper::getTransitionsByWorkflowId($workflowID);
+	$modifiedTransitions = array();
+
+	foreach ($transitions as $transition) {
+		$transition->id = 'transition' . $transition->id;
+		$transition->source = 'state.' . $transition->from_state_id;
+		$transition->target = 'state.' . $transition->to_state_id;
+		array_push($modifiedTransitions, (object)array('data' => clone $transition));
+	}
+
+	$transitions = $modifiedTransitions;
+
+	$statesArray = json_encode($states);
+	$transitionsArray = json_encode($transitions);
+
+	echo JText::_('COM_WORKFLOW_DIAGRAM');
+}
+
+?>
+
+<div id="workflow_diagram"/>
+
+
+<style>
+    #workflow_diagram {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<script>
+    var cy = cytoscape({
+        container: document.getElementById('workflow_diagram'),
+        elements: {
+            nodes: <?php echo $statesArray ?>,
+            edges: <?php echo $transitionsArray ?>
+        },
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'content': 'data(title)',
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    'shape':'roundrectangle',
+                    'width' : 100
+                }
+            },
+            {
+                selector: 'node[condition= "-2"]',
+                style: {
+                    'background-color' : 'red'
+                }
+            },
+            {
+                selector: 'node[condition= "0"]',
+                style: {
+                    'background-color' : 'yellow'
+                }
+            },
+            {
+                selector: 'node[condition= "1"]',
+                style: {
+                    'background-color' : 'limegreen'
+                }
+            },
+            {
+                selector: 'node[default= 1]',
+                style: {
+                    'border-color' : 'brown',
+                    'border-width' : 5
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'content': 'data(title)',
+                    'text-margin-y': -10,
+                    'curve-style': 'bezier',
+                    'width': 4,
+                    'target-arrow-shape': 'triangle',
+                    'line-color': '#9dbaea',
+                    'target-arrow-color': '#9dbaea'
+                }
+            }
+        ],
+        layout: {
+            name: 'circle'
+        },
+        zoomingEnabled: false,
+        boxSelectionEnabled: false
+    });
+</script>
