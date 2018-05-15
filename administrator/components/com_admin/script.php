@@ -9,7 +9,9 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\Database\UTF8MB4SupportInterface;
+use Joomla\Component\Workflow\Administrator as Workflow;
 
 /**
  * Script file of Joomla CMS
@@ -87,6 +89,7 @@ class JoomlaInstallerScript
 		$this->updateManifestCaches();
 		$this->updateDatabase();
 		$this->updateAssets($installer);
+		$this->installWorkflow();
 		$this->clearStatsCache();
 		$this->convertTablesToUtf8mb4(true);
 		$this->cleanJoomlaCache();
@@ -4200,5 +4203,191 @@ class JoomlaInstallerScript
 		// Clean admin cache
 		$model->setState('client_id', 1);
 		$model->clean();
+	}
+
+	/**
+	 * Method to install com_workflow component
+	 *
+	 * @return void
+	 */
+	private function installWorkflow()
+	{
+		if (!JComponentHelper::isEnabled('com_workflow'))
+		{
+			return;
+		}
+
+		// Load languages
+		Factory::getLanguage()->load('com_workflow', JPATH_ADMINISTRATOR);
+
+		// Only execute in migration
+		if (version_compare(JVERSION, '4.0.0', '>='))
+		{
+			return;
+		}
+
+		$workflowModel = new Workflow\Model\WorkflowModel;
+		$user   = Factory::getUser();
+
+		$defaultWorkflow = array(
+			'id'			=> 0,
+			'published'		=> '1',
+			'title'			=> JText::_('COM_WORKFLOW_DEFAULT_WORKFLOW_TITLE'),
+			'description'	=> '',
+			'extension'		=> 'com_content',
+			'default'		=> '1',
+			'created_by'	=> $user->id,
+			'modified_by'	=> 0
+		);
+
+		try
+		{
+			if (!$workflowModel->save($defaultWorkflow))
+			{
+				throw new Exception($workflowModel->getError());
+			}
+		}
+		catch (Exception $e)
+		{
+			// Render the error message from the Exception object
+			Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+			return;
+		}
+
+		$workflowStateModel = new Workflow\Model\StateModel;
+
+		$defaultWorkflowStates = array(
+			array (
+				'title'		=> JText::_('COM_WORKFLOW_UNPUBLISHED'),
+				'condition'	=> '0'
+			),
+			array (
+				'title'		=> JText::_('COM_WORKFLOW_TRASHED'),
+				'condition'	=> '-2'
+			),
+			array (
+				'title'		=> JText::_('COM_WORKFLOW_ARCHIVED'),
+				'condition'	=> '1'
+			)
+		);
+
+		foreach ($defaultWorkflowStates as $defaultWorkflowState) {
+			$workflowState = array(
+				'id'			=> 0,
+				'workflow_id'	=> 1,
+				'published'		=> '1',
+				'title'			=> $defaultWorkflowState['title'],
+				'description'	=> '',
+				'condition'		=> $defaultWorkflowState['condition'],
+				'default'		=> '0'
+			);
+
+			try
+			{
+				if (!$workflowStateModel->save($workflowState))
+				{
+					throw new Exception($workflowStateModel->getError());
+				}
+			}
+			catch (Exception $e)
+			{
+				// Render the error message from the Exception object
+				Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+				return;
+			}
+
+		}
+
+		$workflowTransitionModel = new Workflow\Model\TransitionModel;
+
+		for ($to_state_id = 1; $to_state_id < 5; $to_state_id++)
+		{
+			$transitionTitle = '';
+
+			switch ($to_state_id) {
+				case 1:
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_PUBLISH');
+					break;
+				case 2:
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_UNPUBLISH');
+					break;
+				case 3:
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_TRASH');
+					break;
+				case 4:
+					$transitionTitle = JText::_('COM_WORKFLOW_TRANSITION_ARCHIVE');
+					break;
+			}
+
+			for ($from_state_id = 1; $from_state_id < 5; $from_state_id++)
+			{
+
+				if ($to_state_id == $from_state_id) continue;
+
+				$workflowTransition = array(
+					'id'			=> 0,
+					'workflow_id'	=> 1,
+					'published'		=> '1',
+					'title'			=> $transitionTitle,
+					'description'	=> '',
+					'from_state_id'		=> (string) $from_state_id,
+					'to_state_id'		=> (string) $to_state_id
+				);
+
+				try
+				{
+					if (!$workflowTransitionModel->save($workflowTransition))
+					{
+						throw new Exception($workflowTransitionModel->getError());
+					}
+
+				}
+				catch (Exception $e)
+				{
+					// Render the error message from the Exception object
+					Factory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+
+					return;
+				}
+
+			}
+		}
+
+		// Adding values to workflow_associations table
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('a.id AS id, a.state AS state')
+			->from($db->quoteName('#__content', 'a'));
+
+		$articles = $db->setQuery($query)->loadObjectList();
+
+		$workflowHelper = new Workflow\Helper\WorkflowHelper;
+
+		foreach ($articles as &$article)
+		{
+			$workflowState = 0;
+
+			switch ($article->state)
+			{
+				case 0 :
+					$workflowState = 1;
+					break;
+				case 1 :
+					$workflowState = 2;
+					break;
+				case -2 :
+					$workflowState = 3;
+					break;
+				case 2 :
+					$workflowState = 4;
+					break;
+			}
+
+			$workflowHelper::addAssociation($article->id, $workflowState, 'com_content');
+		}
 	}
 }
